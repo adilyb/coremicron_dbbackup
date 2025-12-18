@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Backup{% endblock %}
+
+{% block header %}Database Backup{% endblock %}
+
+{% block content %}
+
+<form method="get" class="flex items-center gap-3 mb-4">
+    <input 
+        type="text"
+        name="q"
+        placeholder="Search user..."
+        value="{{ request.GET.q }}"
+        class="input input-bordered"
+    >
+    
+    <button type="submit" class="btn btn-primary btn-sm">
+        Search
+    </button>
+</form>
+
+{% if users %}
+<div class="space-y-6">
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-base-100 shadow-lg rounded-lg">
+
+        <table class="table table-zebra w-full">
+
+            <thead>
+                <tr>
+                    <th>SI</th>
+                    <th>Software Name</th>
+                    <th>DB Name</th>
+                    <th>Download Options</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user.software_name }}</td>
+                    <td>{{ user.customer_name }}</td>
+                    <td class="flex gap-2">
+
+                         <form method="post" action="{% url 'backupscroll' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-secondary">Backup Now</button>
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                        </form> 
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-gray-500 py-6">
+                        No backups found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+
+{% if users.paginator.num_pages > 1 %}
+<div class="flex justify-center mt-4">
+    <div class="btn-group">
+        {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">«</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">«</span>
+        {% endif %}
+
+        {# Limit visible pages: current ±2 #}
+        {% for num in users.paginator.page_range %}
+            {% if num >= users.number|add:-2 and num <= users.number|add:2 %}
+                {% if users.number == num %}
+                    <span class="btn btn-sm btn-active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+                {% endif %}
+            {% elif num == 1 or num == users.paginator.num_pages %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+            {% elif num == users.number|add:-3 or num == users.number|add:3 %}
+                <span class="btn btn-sm btn-disabled">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">»</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">»</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
+</div>
+{% endif %}
+{% endblock %}

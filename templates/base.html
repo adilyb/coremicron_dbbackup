@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    <!-- Tailwind + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/tailwindcss-cdn"></script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="overflow-x-hidden">
+
+<div class="flex">
+
+    <!-- Sidebar -->
+    <div id="sidebar"
+         class="flex-shrink-0 w-80 h-screen sticky top-0 overflow-y-auto bg-gray-900 text-white
+               transition-all duration-300">
+
+        <nav class="navbar shadow-lg p-5 flex items-center">
+            <div class="font-semibold text-lg sidebar-label">
+                <a href="{% url 'dashboard' %}">Core</a>
+            </div>
+        </nav>
+
+        <ul class="menu p-5">
+
+            <li class="menu-title sidebar-label"><span>Navigation</span></li>
+
+            <li>
+                <a href="{% url 'dashboard' %}" class="flex gap-3 items-center">
+                    <i class="fa fa-clipboard-list"></i>
+                    <span class="sidebar-label">Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'view_user' %}" class="flex gap-3 items-center">
+                    <i class="fa fa-user-cog"></i>
+                    <span class="sidebar-label">User</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'dbbackup' %}" class="flex gap-3 items-center">
+                    <i class="fa fa-database"></i>
+                    <span class="sidebar-label">Back up</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'report' %}" class="flex gap-3 items-center">
+                    <i class="fa fa-file-alt"></i>
+                    <span class="sidebar-label">Reports</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- Main Area -->
+    <div class="flex-1">
+
+        <!-- Top Navbar -->
+        <nav class="navbar shadow-lg p-5 bg-gray-900 text-white w-full flex items-center gap-4 relative">
+
+            <!-- HAMBURGER -->
+            <button id="sidebarToggle"
+                class="absolute left-[-45px] top-1/2 -translate-y-1/2">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+
+            <div class="text-lg font-semibold">
+                {% block header %}Dashboard{% endblock %}
+            </div>
+<!-- Logout Button -->
+        <div class="ml-auto">
+            <form method="post" action="{% url 'user_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-error flex items-center gap-2">
+                    <i class="fa fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div class="w-full p-5" id="content-area">
+            {% block content %}{% endblock %}
+        </div>
+
+    </div>
+</div>
+
+{% block extra_js %}{% endblock %}
+
+<script>
+const sidebar = document.getElementById("sidebar");
+const labels = document.querySelectorAll(".sidebar-label");
+
+function applySidebarState() {
+    const collapsed = localStorage.getItem("sidebar_collapsed") === "true";
+
+    if (collapsed) {
+        sidebar.classList.remove("w-80");
+        sidebar.classList.add("w-20");
+        labels.forEach(lbl => lbl.classList.add("hidden"));
+    } else {
+        sidebar.classList.remove("w-20");
+        sidebar.classList.add("w-80");
+        labels.forEach(lbl => lbl.classList.remove("hidden"));
+    }
+}
+
+// Run on page load
+applySidebarState();
+
+document.getElementById("sidebarToggle").addEventListener("click", function () {
+
+    const collapsed = localStorage.getItem("sidebar_collapsed") === "true";
+
+    localStorage.setItem("sidebar_collapsed", !collapsed);
+
+    applySidebarState();
+});
+</script>
+
+
+</body>
+</html>

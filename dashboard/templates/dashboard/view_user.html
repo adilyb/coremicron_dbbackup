@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Management{% endblock %}
+{% block header %}User Management{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- Filters Row -->
+    <div class="bg-base-100 shadow-lg p-4 rounded-lg flex flex-wrap gap-4 items-center">
+
+        <form method="get" class="flex items-center gap-2">
+            <input
+                type="text"
+                name="q"
+                value="{{ request.GET.q }}"
+                placeholder="Search user..."
+                class="input input-bordered"
+            >
+            <button type="submit" class="btn btn-primary btn-sm">
+                Search
+            </button>
+        </form>
+
+        <!-- Role Filter -->
+        <!-- <div class="dropdown dropdown-hover">
+            <label tabindex="0" class="btn btn-sm">Role</label>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+                <li><a href="?role=admin">Admin</a></li>
+                <li><a href="?role=user">User</a></li>
+                <li><a href="?role=guest">Guest</a></li>
+            </ul>
+        </div> -->
+
+        <!-- Status Filter -->
+        <!-- <div class="dropdown dropdown-hover">
+            <label tabindex="0" class="btn btn-sm">Status</label>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+                <li><a href="?status=active">Active</a></li>
+                <li><a href="?status=inactive">Inactive</a></li>
+                <li><a href="?status=suspended">Suspended</a></li>
+            </ul>
+        </div> -->
+
+        <!-- Date Filter -->
+        <!-- <form method="get">
+            <input type="date" name="date" value="{{ request.GET.date }}" class="input input-bordered">
+            <button class="btn btn-sm btn-primary">Filter</button>
+        </form> -->
+
+        <!-- Export -->
+        <!-- <a class="btn btn-outline btn-sm">Export</a> -->
+
+        <!-- Add User -->
+        <a href="{% url 'add_user' %}" class="btn btn-primary btn-sm">+ Add User</a>
+
+    </div>
+
+    <!-- User Table -->
+    <div class="overflow-x-auto bg-base-100 shadow-lg rounded-lg">
+        <table class="table table-zebra w-full">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Software</th>
+                    <th>IP Address</th>
+                    <th>DB Name</th>
+                    <!-- <th>Status</th> -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user.customer_name }}</td>
+                    <td>{{ user.software_name }}</td>
+                    <td>{{ user.ip_address }}</td>
+                    <td>{{ user.db_name }}</td>
+
+                    <!-- <td> -->
+                        <!-- <span class="badge badge-success">Active</span> -->
+                        <!-- optionally dynamic colors later -->
+                    <!-- </td> -->
+
+                    <td class="flex gap-2">
+                        <a href="{% url 'edit_user' user.id %}" class="btn btn-xs btn-info">
+                            Edit
+                        </a>
+                        <form method="post" action="{% url 'delete_user' user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-xs btn-error">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-6 text-gray-500">
+                        No users found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+        {% if users.paginator.num_pages > 1 %}
+<div class="flex justify-center mt-4">
+    <div class="btn-group">
+        {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">«</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">«</span>
+        {% endif %}
+
+        {# Limit number of visible page buttons #}
+        {% for num in users.paginator.page_range %}
+            {% if num >= users.number|add:-2 and num <= users.number|add:2 %}
+                {% if users.number == num %}
+                    <span class="btn btn-sm btn-active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+                {% endif %}
+            {% elif num == 1 or num == users.paginator.num_pages %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+            {% elif num == users.number|add:-3 or num == users.number|add:3 %}
+                <span class="btn btn-sm btn-disabled">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">»</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">»</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

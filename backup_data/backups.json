@@ -1,0 +1,37 @@
+[
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251217_161137",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251217_161137.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251217_161137.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251217_161345",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251217_161345.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251217_161345.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251217_163652",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251217_163652.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251217_163652.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251217_203535",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251217_203535.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251217_203535.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251218_100448",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251218_100448.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251218_100448.sql.gz",
+        "status": "success"
+    }
+]

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Backup{% endblock %}
+
+{% block header %}Report{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+<form method="get" class="flex items-center gap-4 mb-4">
+
+    <!-- date filter -->
+    <input type="date" name="date" value="{{ request.GET.date }}" class="input input-bordered"/>
+
+    <!-- search filter -->
+    <input 
+        type="text" 
+        name="q" 
+        placeholder="Search..." 
+        value="{{ request.GET.q }}" 
+        class="input input-bordered"
+    />
+
+    <button type="submit" class="btn btn-primary btn-sm">
+        Apply
+    </button>
+
+</form>
+
+    
+
+    <!-- Backup Table -->
+    <div class="overflow-x-auto bg-base-100 shadow-xl rounded-xl">
+
+        <table class="table table-zebra w-full">
+
+            <thead>
+                <tr>
+                    <th>SI</th>
+                    <th>Database</th>
+                    <th>Timestamp</th>
+                    <th>File Path</th>
+                    <th>File Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for b in backups %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ b.database }}</td>
+                    <td>{{ b.timestamp }}</td>
+                    <td>{{ b.file_path }}</td>
+                    <td>{{ b.file_name }}</td>
+                    <td>{{ b.status }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-gray-500 py-6">
+                        No backups found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+        {% if backups.paginator.num_pages > 1 %}
+<div class="flex justify-center mt-4">
+    <div class="btn-group">
+        {% if backups.has_previous %}
+            <a href="?page={{ backups.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="btn btn-sm">«</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">«</span>
+        {% endif %}
+
+        {% for num in backups.paginator.page_range %}
+            {% if num >= backups.number|add:-2 and num <= backups.number|add:2 %}
+                {% if backups.number == num %}
+                    <span class="btn btn-sm btn-active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+                {% endif %}
+            {% elif num == 1 or num == backups.paginator.num_pages %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+            {% elif num == backups.number|add:-3 or num == backups.number|add:3 %}
+                <span class="btn btn-sm btn-disabled">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if backups.has_next %}
+            <a href="?page={{ backups.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="btn btn-sm">»</a>
+        {% else %}
+            <span class="btn btn-sm btn-disabled">»</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

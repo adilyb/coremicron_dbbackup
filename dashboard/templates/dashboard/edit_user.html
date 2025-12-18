@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit User{% endblock %}
+{% block header %}Edit User{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl bg-base-100 shadow-lg rounded-lg p-6">
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label class="label">
+                <span class="label-text">Customer Name</span>
+            </label>
+            <input
+                type="text"
+                name="customer_name"
+                value="{{ user.customer_name }}"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Software Name</span>
+            </label>
+            <input
+                type="text"
+                name="software_name"
+                value="{{ user.software_name }}"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">IP Address</span>
+            </label>
+            <input
+                type="text"
+                name="ip_address"
+                value="{{ user.ip_address }}"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Username</span>
+            </label>
+            <input
+                type="text"
+                name="db_username"
+                value="{{ user.db_username }}"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Name</span>
+            </label>
+            <input
+                type="text"
+                name="db_name"
+                value="{{ user.db_name }}"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Password</span>
+            </label>
+            <input
+                type="password"
+                name="db_pass"
+                value="{{ user.db_pass }}"
+                required
+                class="input input-bordered w-full"
+            >   
+        </div>
+
+        <div class="pt-4 flex justify-between">
+            <a href="{% url 'view_user' %}" class="btn btn-outline">
+                Back
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Save Changes
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

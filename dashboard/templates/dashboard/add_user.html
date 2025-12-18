@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add User{% endblock %}
+{% block header %}Add User{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl bg-base-100 shadow-lg rounded-lg p-6">
+
+    <form action="{% url 'add_user' %}" method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label class="label">
+                <span class="label-text">Customer Name</span>
+            </label>
+            <input
+                type="text"
+                name="customer_name"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Software Name</span>
+            </label>
+            <input
+                type="text"
+                name="software_name"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">IP Address</span>
+            </label>
+            <input
+                type="text"
+                name="ip_address"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Username</span>
+            </label>
+            <input
+                type="text"
+                name="db_username"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Name</span>
+            </label>
+            <input
+                type="text"
+                name="db_name"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div>
+            <label class="label">
+                <span class="label-text">Database Password</span>
+            </label>
+            <input
+                type="password"
+                name="db_pass"
+                required
+                class="input input-bordered w-full"
+            >
+        </div>
+
+        <div class="pt-4 flex justify-between">
+            <a href="{% url 'view_user' %}" class="btn btn-outline">
+                Back
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i>
+                Submit
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

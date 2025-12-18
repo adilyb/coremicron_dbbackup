@@ -1,0 +1,77 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+*.pyo
+*.pyd
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+eggs/
+parts/
+sdist/
+var/
+*.log
+*.pot
+*.py[cod]
+*.mo
+*.db
+*.sqlite3
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static_root/
+local_settings.py
+
+# PyCharm / VSCode / IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Coverage / testing
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# files
+
+cramps/
