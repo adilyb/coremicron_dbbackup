@@ -79,7 +79,7 @@ def delete_user(request, user_id):
 
 def dbbackup(request):
     q = request.GET.get("q", "").strip()
-    users_list = Users.objects.all()
+    users_list = Users.objects.filter(db_username="adil")
 
     if q:
         users_list = users_list.filter(
