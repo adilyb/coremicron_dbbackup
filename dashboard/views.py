@@ -177,7 +177,7 @@ def report(request):
             b["display_timestamp"] = b["timestamp"]
 
     # pagination
-    paginator = Paginator(filtered, 8) 
+    paginator = Paginator(filtered, 6) 
     page_number = request.GET.get("page") 
     page_obj = paginator.get_page(page_number) 
 
