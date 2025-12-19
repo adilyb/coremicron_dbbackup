@@ -22,9 +22,8 @@ def backup_mysql(DB_HOST, DB_NAME, DB_USER, DB_PASS, output_dir="backup_data"):
         "-h", DB_HOST,
         "-u", DB_USER,
         f"-p{DB_PASS}",
-        "--single-transaction",        # Avoids LOCK TABLES issues
-        "--skip-lock-tables",          # Safer for shared hosting
-        "--column-statistics=0",       # Suppress warnings
+        "--single-transaction",    
+        "--skip-lock-tables",          
         DB_NAME
     ]
 

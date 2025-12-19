@@ -79,7 +79,8 @@ def delete_user(request, user_id):
 
 def dbbackup(request):
     q = request.GET.get("q", "").strip()
-    users_list = Users.objects.filter(db_username="adil")
+
+    users_list = Users.objects.all()
 
     if q:
         users_list = users_list.filter(
@@ -87,13 +88,31 @@ def dbbackup(request):
             Q(customer_name__icontains=q) |
             Q(ip_address__icontains=q)
         )
+
+    # load backup metadata
+    backup_lookup = {}
+
+    if BACKUP_JSON_PATH.exists():
+        with open(BACKUP_JSON_PATH, "r") as f:
+            items = json.load(f)
+
+        for item in items:
+            ts = datetime.strptime(item["timestamp"], "%Y%m%d_%H%M%S")
+            backup_lookup[item["database"]] = ts
+
     
-    # Paginate the queryset (10 per page, change as needed)
+    # attach last_backup property to each user obj
+    for u in users_list:
+        db = u.db_name
+        print(db)             
+        u.last_backup = backup_lookup.get(db)
+        print(u.last_backup)
     paginator = Paginator(users_list, 7)
     page_number = request.GET.get("page")
     users = paginator.get_page(page_number)
-    
+
     return render(request, "dashboard/dbbackup.html", {"users": users})
+
 
 def backupscroll(request):
     if request.method == "POST":
@@ -103,10 +122,10 @@ def backupscroll(request):
         db_name = user.db_name
         db_user = user.db_username
         db_pass = user.db_pass
-        print(ip_address)
-        print(db_name)
-        print(db_user)
-        print(db_pass)
+        # print(ip_address)
+        # print(db_name)
+        # print(db_user)
+        # print(db_pass)
 
         backup_mysql(
             ip_address,
@@ -149,9 +168,17 @@ def report(request):
             or search_query in b["timestamp"].lower()
         ]
 
+    for b in filtered:
+        try:
+            dt = datetime.strptime(b["timestamp"], "%Y%m%d_%H%M%S")
+            b["display_timestamp"] = dt.strftime("%d %b %Y %H:%M:%S")
+            print(b["display_timestamp"])
+        except:
+            b["display_timestamp"] = b["timestamp"]
+
     # pagination
-    paginator = Paginator(filtered, 8)  # 10 backups per page
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    paginator = Paginator(filtered, 8) 
+    page_number = request.GET.get("page") 
+    page_obj = paginator.get_page(page_number) 
 
     return render(request, "dashboard/report.html", {"backups": page_obj})

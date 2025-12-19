@@ -33,5 +33,26 @@
         "file_path": "backup_data/agnisolu_spark_electronics_20251218_100448.sql.gz",
         "file_name": "agnisolu_spark_electronics_20251218_100448.sql.gz",
         "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251219_110949",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251219_110949.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251219_110949.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251219_112132",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251219_112132.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251219_112132.sql.gz",
+        "status": "success"
+    },
+    {
+        "database": "agnisolu_spark_electronics",
+        "timestamp": "20251219_112220",
+        "file_path": "backup_data/agnisolu_spark_electronics_20251219_112220.sql.gz",
+        "file_name": "agnisolu_spark_electronics_20251219_112220.sql.gz",
+        "status": "success"
     }
 ]
