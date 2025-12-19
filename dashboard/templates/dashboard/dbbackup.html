@@ -79,21 +79,26 @@
         <span class="btn btn-sm btn-disabled">«</span>
         {% endif %}
 
-
         {% for num in users.paginator.page_range %}
-        {% if num >= users.number|add:-2 and num <= users.number|add:2 %} {% if users.number == num %} <span
-            class="btn btn-sm btn-active">{{ num }}</span>
-            {% else %}
-            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num
-                }}</a>
-            {% endif %}
+
+            {% if num == users.number %}
+                <span class="btn btn-sm btn-active">{{ num }}</span>
+
+            {% elif num >= users.number|add:-2 and num <= users.number|add:2 %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                class="btn btn-sm">{{ num }}</a>
+
             {% elif num == 1 or num == users.paginator.num_pages %}
-            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num
-                }}</a>
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                class="btn btn-sm">{{ num }}</a>
+
             {% elif num == users.number|add:-3 or num == users.number|add:3 %}
-            <span class="btn btn-sm btn-disabled">...</span>
+                <span class="btn btn-sm btn-disabled">...</span>
+
             {% endif %}
-            {% endfor %}
+
+        {% endfor %}
+
 
             {% if users.has_next %}
             <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
