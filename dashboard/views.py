@@ -36,6 +36,49 @@ def view_user(request):
     users = paginator.get_page(page_number)
     return render(request, "dashboard/view_user.html", {'users':users})
 
+def block_user(request, user_id):
+
+    user = get_object_or_404(Users, id=user_id)
+    user.is_active = not user.is_active
+    user.save()
+    return redirect("view_user")
+    
+    
+def dbbackup(request):
+        q = request.GET.get("q", "").strip()
+    
+        users_list = Users.objects.all()
+    
+        if q:
+            users_list = users_list.filter(
+                Q(software_name__icontains=q) |
+                Q(customer_name__icontains=q) |
+                Q(ip_address__icontains=q)
+            )
+    
+        # load backup metadata
+        backup_lookup = {}
+    
+        if BACKUP_JSON_PATH.exists():
+            with open(BACKUP_JSON_PATH, "r") as f:
+                items = json.load(f)
+            for item in items:
+                ts = datetime.strptime(item["timestamp"], "%Y-%m-%d %H:%M:%S")
+                backup_lookup[item["database"]] = ts
+    
+        
+        # attach last_backup property to each user obj
+        for u in users_list:
+            db = u.db_name
+            print(db)             
+            u.last_backup = backup_lookup.get(db)
+            print(u.last_backup)
+        paginator = Paginator(users_list, 7)
+        page_number = request.GET.get("page")
+        users = paginator.get_page(page_number)
+    
+        return render(request, "dashboard/dbbackup.html", {"users": users})
+
 def add_user(request):
     if request.method == "POST":
         Users.objects.create(
@@ -68,14 +111,10 @@ def edit_user(request, user_id):
 
 def delete_user(request, user_id):
     user = get_object_or_404(Users, id=user_id)
+    user.delete()
+    messages.success(request, "User deleted successfully")
+    return redirect("view_user")
 
-    if request.method == "POST":
-        user.delete()
-        messages.success(request, "User deleted successfully")
-        return redirect("view_user")
-
-    # optional: redirect if GET request hits delete URL
-    return redirect("user_management")
 
 def dbbackup(request):
     q = request.GET.get("q", "").strip()
@@ -104,9 +143,7 @@ def dbbackup(request):
     # attach last_backup property to each user obj
     for u in users_list:
         db = u.db_name
-        print(db)             
         u.last_backup = backup_lookup.get(db)
-        print(u.last_backup)
     paginator = Paginator(users_list, 7)
     page_number = request.GET.get("page")
     users = paginator.get_page(page_number)
@@ -169,7 +206,6 @@ def report(request):
         try:
             dt = datetime.strptime(b["timestamp"], "%Y%m%d_%H%M%S")
             b["display_timestamp"] = dt.strftime("%d %b %Y %H:%M:%S")
-            print(b["display_timestamp"])
         except:
             b["display_timestamp"] = b["timestamp"]
 

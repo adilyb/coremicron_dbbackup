@@ -88,15 +88,23 @@
                     <!-- </td> -->
 
                     <td class="flex gap-2">
-                        <a href="{% url 'edit_user' user.id %}" class="btn btn-xs btn-info">
+                        <a href="{% url 'edit_user' user.id %}" class="btn btn-xs btn-info w-16">
                             Edit
                         </a>
-                        <form method="post" action="{% url 'delete_user' user.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-xs btn-error">
-                                Delete
-                            </button>
-                        </form>
+                        <a href="{% url 'delete_user' user.id %}" class="btn btn-xs btn-neutral  w-16">
+                            Delete
+                        </a>
+                        {% if user.is_active %}
+                            <a href="{% url 'toggle_user' user.id %}"
+                            class="btn btn-xs btn-error w-20">
+                            Block
+                            </a>
+                        {% else %}
+                            <a href="{% url 'toggle_user' user.id %}"
+                            class="btn btn-xs btn-success w-20">
+                            Unblock
+                            </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -118,7 +126,6 @@
             <span class="btn btn-sm btn-disabled">«</span>
         {% endif %}
 
-        {# Limit number of visible page buttons #}
         {% for num in users.paginator.page_range %}
             {% if num >= users.number|add:-2 and num <= users.number|add:2 %}
                 {% if users.number == num %}

@@ -7,9 +7,8 @@ urlpatterns = [
     path('dbbackup', views.dbbackup, name='dbbackup'),
     path('backupscroll', views.backupscroll, name='backupscroll'),
     path('report', views.report, name='report'),
-    path('user_view', views.view_user, name='view_user'),
+    path('view_user', views.view_user, name='view_user'),
     path("user/edit/<int:user_id>/", views.edit_user, name="edit_user"),
     path("user/delete/<int:user_id>/", views.delete_user, name="delete_user"),
-
-
+    path("block-user/<int:user_id>/", views.block_user, name="toggle_user"),
 ]

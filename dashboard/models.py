@@ -11,6 +11,7 @@ class Users(models.Model):
     db_name = models.CharField(max_length=100)
     db_username = models.CharField(max_length=100)
     db_pass = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.customer_name
