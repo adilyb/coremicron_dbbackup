@@ -7,10 +7,14 @@ from pathlib import Path
 import json
 def backup_mysql(DB_HOST, DB_NAME, DB_USER, DB_PASS, output_dir="backup_data"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    date_folder = datetime.now().strftime("%Y%m%d")
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    final_output_dir = output_dir / date_folder
+    final_output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_file = output_dir / f"{DB_NAME}_{timestamp}.sql.gz"
+
+    output_file = final_output_dir / f"{DB_NAME}_{timestamp}.sql.gz"
 
     # Check if mysqldump is available
     if not shutil.which("mysqldump"):

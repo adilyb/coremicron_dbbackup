@@ -122,10 +122,7 @@ def backupscroll(request):
         db_name = user.db_name
         db_user = user.db_username
         db_pass = user.db_pass
-        # print(ip_address)
-        # print(db_name)
-        # print(db_user)
-        # print(db_pass)
+
 
         backup_mysql(
             ip_address,
