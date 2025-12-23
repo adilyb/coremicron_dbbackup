@@ -15,7 +15,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.core.paginator import Paginator
 import pymysql
-
+from datetime import date
 
 
 # GLOBAL VARIABLES
@@ -45,7 +45,11 @@ def user_mgmt_view_user(request):
     paginator = Paginator(users_list, 7)
     page_number = request.GET.get('page')
     users = paginator.get_page(page_number)
-    return render(request, "dashboard/view_user.html", {'users':users})
+    context = {
+        "today": date.today(),
+        'users':users
+    }
+    return render(request, "dashboard/view_user.html", context)
 
 
 def user_mgmt_add_user(request):
@@ -242,9 +246,10 @@ def user_mgmt_clear_message(request, user_id):
         record_id = row["id"]
 
         cursor.execute(
-                "UPDATE company_details SET message='' WHERE id=%s",
-                (record_id,)
-            )
+            "UPDATE company_details SET message=%s, msg_expiry_date=%s WHERE id=%s",
+            ("", "", record_id)
+        )
+        
         messages.success(request, "Message cleared successfully")
 
         user.msg_active = False
