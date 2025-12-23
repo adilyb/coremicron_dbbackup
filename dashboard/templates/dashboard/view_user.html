@@ -52,21 +52,23 @@
         <a href="{% url 'add_user' %}" class="btn btn-primary btn-sm">+ Add User</a>
 
     </div>
-    {% if messages %}
-    <div id="django-messages" class="fixed top-4 right-4 space-y-2 z-50 w-72">
-        {% for message in messages %}
-            <div class="alert 
-                {% if message.tags == 'success' %}alert-success{% endif %}
-                {% if message.tags == 'error' %}alert-error{% endif %}
-                {% if message.tags == 'warning' %}alert-warning{% endif %}
-                {% if message.tags == 'info' %}alert-info{% endif %}
-            shadow-lg transition-opacity duration-700"
-            >
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+{% if messages %}
+<div id="django-messages" class="fixed top-4 right-4 space-y-2 z-50 w-auto bg-opacity-50 p-2 rounded">
+    {% for message in messages %}
+        <div class="alert 
+            {% if message.tags == 'success' %}alert-success{% endif %}
+            {% if message.tags == 'error' %}alert-error{% endif %}
+            {% if message.tags == 'warning' %}alert-warning{% endif %}
+            {% if message.tags == 'info' %}alert-info{% endif %}
+            shadow-lg flex justify-between items-center transition-opacity duration-500 opacity-90"
+        >
+            <span>{{ message }}</span>
+            <button type="button" onclick="fadeOut(this.parentElement)" class="ml-2 font-bold">&times;</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 
     <!-- User Table -->
     <div class="overflow-x-auto bg-base-100 shadow-lg rounded-lg">
@@ -94,21 +96,21 @@
 
                     <td class="flex gap-2">
                         <a href="{% url 'edit_user' user.id %}"
-                            class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
+                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
                             Edit
                         </a>
                         <a href="{% url 'delete_user' user.id %}"
-                            class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
+                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
                             Delete
                         </a>
                         {% if user.is_active %}
                         <a href="{% url 'block_user' user.id %}"
-                            class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-20">
+                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-20">
                             Block
                         </a>
                         {% else %}
                         <a href="{% url 'block_user' user.id %}"
-                            class="btn btn-xs btn-xs bg-green-700 hover:bg-green-800 text-white w-20">
+                            class="btn btn-xs bg-green-700 hover:bg-green-800 text-white w-20">
                             Unblock
                         </a>
                         {% endif %}
@@ -217,6 +219,12 @@
             setTimeout(() => box.remove(), 700);
         }
     }, 3000);
+
+    function fadeOut(element) {
+    element.style.opacity = '0';
+    setTimeout(() => element.style.display = 'none', 500); // match duration-500
+}
+
 </script>
 
 
