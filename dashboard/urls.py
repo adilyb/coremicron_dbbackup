@@ -13,8 +13,6 @@ urlpatterns = [
     path("message-user/<int:user_id>/", views.user_mgmt_send_message, name="message_user"),
     path("clear_message/<int:user_id>/", views.user_mgmt_clear_message, name="clear_message"),
 
-
-    
     # backup
     path('dbbackup', views.dbbackup, name='dbbackup'),
     path('backupscroll', views.backupscroll, name='backupscroll'),
