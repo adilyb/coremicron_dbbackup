@@ -14,14 +14,25 @@ from .get_backup import backup_mysql
 from datetime import datetime
 from django.contrib import messages
 from django.core.paginator import Paginator
+import pymysql
 
+
+
+# GLOBAL VARIABLES
 
 BACKUP_JSON_PATH = Path("backup_data/backups.json")
+user_mgmt_block_user_table = ''
+user_mgmt_block_user_column = ''
+
+
 
 def index(request):
     return render(request, 'dashboard/index.html')
 
-def view_user(request):
+
+# USER MANAGEMENT
+
+def user_mgmt_view_user(request):
     query = request.GET.get('q', '')
     
     # Filter users if search query exists
@@ -36,50 +47,8 @@ def view_user(request):
     users = paginator.get_page(page_number)
     return render(request, "dashboard/view_user.html", {'users':users})
 
-def block_user(request, user_id):
 
-    user = get_object_or_404(Users, id=user_id)
-    user.is_active = not user.is_active
-    user.save()
-    return redirect("view_user")
-    
-    
-def dbbackup(request):
-        q = request.GET.get("q", "").strip()
-    
-        users_list = Users.objects.all()
-    
-        if q:
-            users_list = users_list.filter(
-                Q(software_name__icontains=q) |
-                Q(customer_name__icontains=q) |
-                Q(ip_address__icontains=q)
-            )
-    
-        # load backup metadata
-        backup_lookup = {}
-    
-        if BACKUP_JSON_PATH.exists():
-            with open(BACKUP_JSON_PATH, "r") as f:
-                items = json.load(f)
-            for item in items:
-                ts = datetime.strptime(item["timestamp"], "%Y-%m-%d %H:%M:%S")
-                backup_lookup[item["database"]] = ts
-    
-        
-        # attach last_backup property to each user obj
-        for u in users_list:
-            db = u.db_name
-            print(db)             
-            u.last_backup = backup_lookup.get(db)
-            print(u.last_backup)
-        paginator = Paginator(users_list, 7)
-        page_number = request.GET.get("page")
-        users = paginator.get_page(page_number)
-    
-        return render(request, "dashboard/dbbackup.html", {"users": users})
-
-def add_user(request):
+def user_mgmt_add_user(request):
     if request.method == "POST":
         Users.objects.create(
             customer_name=request.POST.get("customer_name"),
@@ -93,7 +62,7 @@ def add_user(request):
 
     return render(request, "dashboard/add_user.html")
 
-def edit_user(request, user_id):
+def user_mgmt_edit_user(request, user_id):
     user = get_object_or_404(Users, id=user_id)
 
     if request.method == "POST":
@@ -109,12 +78,193 @@ def edit_user(request, user_id):
         return redirect("view_user") 
     return render(request, "dashboard/edit_user.html", {'user':user})
 
-def delete_user(request, user_id):
+def user_mgmt_delete_user(request, user_id):
     user = get_object_or_404(Users, id=user_id)
     user.delete()
     messages.success(request, "User deleted successfully")
     return redirect("view_user")
 
+
+
+def user_mgmt_block_user(request, user_id):
+    user = get_object_or_404(Users, id=user_id)
+
+    conn = None
+    cursor = None
+
+    try:
+        # Connect to remote database using PyMySQL
+        conn = pymysql.connect(
+            host=user.ip_address,
+            user=user.db_username,
+            password=user.db_pass,
+            database=user.db_name,
+            port=3306,
+            autocommit=True
+        )
+
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        # Fetch current status
+        cursor.execute("SELECT id, status FROM company_details LIMIT 1")
+        row = cursor.fetchone()
+
+
+
+        if not row:
+            messages.error(request, "Company details not found")
+            return redirect("view_user")
+
+        current_status = row["status"].lower()
+        record_id = row["id"]
+
+        # Toggle status
+        new_status = "inactive" if current_status == "active" else "active"
+
+        # update local django user field
+        if new_status == "active":
+            user.is_active = True
+        else:
+            user.is_active = False
+
+        user.save()
+
+        
+        # Update the status for the specific record
+        cursor.execute(
+            "UPDATE company_details SET status=%s WHERE id=%s",
+            (new_status, record_id)
+        )
+
+        messages.success(request, f"Company status updated to {new_status}")
+
+    except pymysql.MySQLError as e:
+        messages.error(request, f"Database error: {str(e)}")
+
+    except Exception as e:
+        messages.error(request, f"Unexpected error: {str(e)}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return redirect("view_user")
+    
+def user_mgmt_send_message(request, user_id):
+
+    user = get_object_or_404(Users, id=user_id)
+
+    # get the message from POST or GET
+    new_message = request.POST.get("msg") or request.GET.get("msg") or ""
+
+    if not new_message.strip():
+        messages.error(request, "Message cannot be empty")
+        return redirect("view_user")
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = pymysql.connect(
+            host=user.ip_address,
+            user=user.db_username,
+            password=user.db_pass,
+            database=user.db_name,
+            port=3306,
+            autocommit=True
+        )
+
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        # fetch first record
+        cursor.execute("SELECT id FROM company_details LIMIT 1")
+        row = cursor.fetchone()
+
+        if not row:
+            messages.error(request, "Company details record not found")
+            return redirect("view_user")
+
+        record_id = row["id"]
+
+        # update only the message
+        cursor.execute(
+            "UPDATE company_details SET message=%s WHERE id=%s",
+            (new_message, record_id)
+        )
+
+        user.msg_active = True
+        user.save()
+
+        messages.success(request, "Message saved successfully")
+
+    except pymysql.MySQLError as e:
+        messages.error(request, f"Database error: {str(e)}")
+
+    except Exception as e:
+        messages.error(request, f"Unexpected error: {str(e)}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return redirect("view_user")
+
+def user_mgmt_clear_message(request, user_id):
+    user = get_object_or_404(Users, id=user_id)
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = pymysql.connect(
+            host=user.ip_address,
+            user=user.db_username,
+            password=user.db_pass,
+            database=user.db_name,
+            port=3306,
+            autocommit=True
+        )
+
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        cursor.execute("SELECT id FROM company_details LIMIT 1")
+        row = cursor.fetchone()
+
+        if not row:
+            messages.error(request, "Company details record not found")
+            return redirect("view_user")
+
+        record_id = row["id"]
+
+        cursor.execute(
+                "UPDATE company_details SET message='' WHERE id=%s",
+                (record_id,)
+            )
+        messages.success(request, "Message cleared successfully")
+
+        user.msg_active = False
+        user.save()
+        
+    except pymysql.MySQLError as e:
+        messages.error(request, f"Database error: {str(e)}")
+
+    except Exception as e:
+        messages.error(request, f"Unexpected error: {str(e)}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return redirect("view_user")
+
+
+# BACKUP
 
 def dbbackup(request):
     q = request.GET.get("q", "").strip()
@@ -128,7 +278,7 @@ def dbbackup(request):
             Q(ip_address__icontains=q)
         )
 
-    # load backup metadata
+    # load backup metadata  
     backup_lookup = {}
 
     if BACKUP_JSON_PATH.exists():

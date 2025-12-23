@@ -12,13 +12,8 @@
     <div class="bg-base-100 shadow-lg p-4 rounded-lg flex flex-wrap gap-4 items-center">
 
         <form method="get" class="flex items-center gap-2">
-            <input
-                type="text"
-                name="q"
-                value="{{ request.GET.q }}"
-                placeholder="Search user..."
-                class="input input-bordered"
-            >
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search user..."
+                class="input input-bordered">
             <button type="submit" class="btn btn-primary btn-sm">
                 Search
             </button>
@@ -82,31 +77,66 @@
                     <td>{{ user.ip_address }}</td>
                     <td>{{ user.db_name }}</td>
 
-                    <!-- <td> -->
-                        <!-- <span class="badge badge-success">Active</span> -->
-                        <!-- optionally dynamic colors later -->
-                    <!-- </td> -->
-
                     <td class="flex gap-2">
-                        <a href="{% url 'edit_user' user.id %}" class="btn btn-xs btn-info w-16">
+                        <a href="{% url 'edit_user' user.id %}" class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
                             Edit
                         </a>
-                        <a href="{% url 'delete_user' user.id %}" class="btn btn-xs btn-neutral  w-16">
+                        <a href="{% url 'delete_user' user.id %}" class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
                             Delete
                         </a>
                         {% if user.is_active %}
-                            <a href="{% url 'toggle_user' user.id %}"
-                            class="btn btn-xs btn-error w-20">
+                        <a href="{% url 'block_user' user.id %}" class="btn btn-xs btn-xs bg-gray-700 hover:bg-gray-800 text-white w-20">
                             Block
-                            </a>
+                        </a>
                         {% else %}
-                            <a href="{% url 'toggle_user' user.id %}"
-                            class="btn btn-xs btn-success w-20">
+                        <a href="{% url 'block_user' user.id %}" class="btn btn-xs btn-xs bg-green-700 hover:bg-green-800 text-white w-20">
                             Unblock
-                            </a>
+                        </a>
                         {% endif %}
+                        {% if not user.msg_active %}
+                        <label for="send-message-modal-{{ user.id }}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-28 cursor-pointer">
+                            Send Message
+                        </label>
+                        {% else %}
+                         <a href="{% url 'clear_message' user.id %}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-28 cursor-pointer">
+                            Clear Message
+                         </a>
+                        {% endif %}
+
                     </td>
                 </tr>
+                <!-- MODAL FOR THIS USER -->
+                <input type="checkbox" id="send-message-modal-{{ user.id }}" class="modal-toggle" />
+
+                <div class="modal">
+                    <div class="modal-box">
+                        <h3 class="font-bold text-lg">Send Message to {{ user.customer_name }}</h3>
+
+                        <form method="post" action="{% url 'message_user' user.id %}">
+                            {% csrf_token %}
+
+                            <label class="label mt-3">
+                                <span class="label-text">Message Expiration date</span>
+                            </label>
+                            <input type="date" name="send_date" class="input input-bordered w-full" required>
+
+                            <label class="label mt-3">
+                                <span class="label-text">Message</span>
+                            </label>
+                            <textarea name="msg" class="textarea textarea-bordered w-full mt-1"
+                                placeholder="Write message" required></textarea>
+
+                            <div class="modal-action">
+                                <label for="send-message-modal-{{ user.id }}" class="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
+                                    Cancel
+                                </label>
+                                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700">
+                                    Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 {% empty %}
                 <tr>
                     <td colspan="7" class="text-center py-6 text-gray-500">
@@ -118,39 +148,45 @@
 
         </table>
         {% if users.paginator.num_pages > 1 %}
-<div class="flex justify-center mt-4">
-    <div class="btn-group">
-        {% if users.has_previous %}
-            <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">«</a>
-        {% else %}
-            <span class="btn btn-sm btn-disabled">«</span>
-        {% endif %}
-
-        {% for num in users.paginator.page_range %}
-            {% if num >= users.number|add:-2 and num <= users.number|add:2 %}
-                {% if users.number == num %}
-                    <span class="btn btn-sm btn-active">{{ num }}</span>
+        <div class="flex justify-center mt-4">
+            <div class="btn-group">
+                {% if users.has_previous %}
+                <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                    class="btn btn-sm">«</a>
                 {% else %}
-                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
+                <span class="btn btn-sm btn-disabled">«</span>
                 {% endif %}
-            {% elif num == 1 or num == users.paginator.num_pages %}
-                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">{{ num }}</a>
-            {% elif num == users.number|add:-3 or num == users.number|add:3 %}
-                <span class="btn btn-sm btn-disabled">...</span>
-            {% endif %}
-        {% endfor %}
 
-        {% if users.has_next %}
-            <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="btn btn-sm">»</a>
-        {% else %}
-            <span class="btn btn-sm btn-disabled">»</span>
+                {% for num in users.paginator.page_range %}
+                {% if num >= users.number|add:-2 and num <= users.number|add:2 %} {% if users.number == num %} <span
+                    class="btn btn-sm btn-active">{{ num }}</span>
+                    {% else %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                        class="btn btn-sm">{{ num }}</a>
+                    {% endif %}
+                    {% elif num == 1 or num == users.paginator.num_pages %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                        class="btn btn-sm">{{ num }}</a>
+                    {% elif num == users.number|add:-3 or num == users.number|add:3 %}
+                    <span class="btn btn-sm btn-disabled">...</span>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                        class="btn btn-sm">»</a>
+                    {% else %}
+                    <span class="btn btn-sm btn-disabled">»</span>
+                    {% endif %}
+            </div>
+        </div>
         {% endif %}
-    </div>
-</div>
-{% endif %}
 
     </div>
 
 </div>
+
+
+
 
 {% endblock %}
