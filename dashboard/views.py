@@ -158,6 +158,7 @@ def user_mgmt_send_message(request, user_id):
 
     # get the message from POST or GET
     new_message = request.POST.get("msg") or request.GET.get("msg") or ""
+    expiry_date = request.POST.get("expiry_date") or request.GET.get("expiry_date") or ""
 
     if not new_message.strip():
         messages.error(request, "Message cannot be empty")
@@ -190,8 +191,8 @@ def user_mgmt_send_message(request, user_id):
 
         # update only the message
         cursor.execute(
-            "UPDATE company_details SET message=%s WHERE id=%s",
-            (new_message, record_id)
+            "UPDATE company_details SET message=%s, msg_expiry_date=%s WHERE id=%s",
+            (new_message, expiry_date, record_id)
         )
 
         user.msg_active = True
