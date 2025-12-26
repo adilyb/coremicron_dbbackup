@@ -14,66 +14,31 @@
         <form method="get" class="flex items-center gap-2">
             <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search user..."
                 class="input input-bordered">
-            <button type="submit" class="btn btn-primary btn-sm">
-                Search
-            </button>
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
         </form>
 
-        <!-- Role Filter -->
-        <!-- <div class="dropdown dropdown-hover">
-            <label tabindex="0" class="btn btn-sm">Role</label>
-            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
-                <li><a href="?role=admin">Admin</a></li>
-                <li><a href="?role=user">User</a></li>
-                <li><a href="?role=guest">Guest</a></li>
-            </ul>
-        </div> -->
-
-        <!-- Status Filter -->
-        <!-- <div class="dropdown dropdown-hover">
-            <label tabindex="0" class="btn btn-sm">Status</label>
-            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
-                <li><a href="?status=active">Active</a></li>
-                <li><a href="?status=inactive">Inactive</a></li>
-                <li><a href="?status=suspended">Suspended</a></li>
-            </ul>
-        </div> -->
-
-        <!-- Date Filter -->
-        <!-- <form method="get">
-            <input type="date" name="date" value="{{ request.GET.date }}" class="input input-bordered">
-            <button class="btn btn-sm btn-primary">Filter</button>
-        </form> -->
-
-        <!-- Export -->
-        <!-- <a class="btn btn-outline btn-sm">Export</a> -->
-
-        <!-- Add User -->
         <a href="{% url 'add_user' %}" class="btn btn-primary btn-sm">+ Add User</a>
 
     </div>
-{% if messages %}
-<div id="django-messages" class="fixed top-4 right-4 space-y-2 z-50 w-auto bg-opacity-50 p-2 rounded">
-    {% for message in messages %}
+
+    {% if messages %}
+    <div id="django-messages" class="fixed top-4 right-4 space-y-2 z-50 w-auto bg-opacity-50 p-2 rounded">
+        {% for message in messages %}
         <div class="alert 
             {% if message.tags == 'success' %}alert-success{% endif %}
             {% if message.tags == 'error' %}alert-error{% endif %}
             {% if message.tags == 'warning' %}alert-warning{% endif %}
             {% if message.tags == 'info' %}alert-info{% endif %}
-            shadow-lg flex justify-between items-center transition-opacity duration-500 opacity-90"
-        >
+            shadow-lg flex justify-between items-center transition-opacity duration-500 opacity-90">
             <span>{{ message }}</span>
             <button type="button" onclick="fadeOut(this.parentElement)" class="ml-2 font-bold">&times;</button>
         </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<h1>{{ today }}</h1>
-<h1>hi</h1>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- User Table -->
-    <div class="overflow-x-auto bg-base-100 shadow-lg rounded-lg">
+    <div class="bg-base-100 shadow-lg rounded-lg">
         <table class="table table-zebra w-full">
             <thead>
                 <tr>
@@ -82,7 +47,6 @@
                     <th>Software</th>
                     <th>IP Address</th>
                     <th>DB Name</th>
-                    <!-- <th>Status</th> -->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -96,43 +60,43 @@
                     <td>{{ user.ip_address }}</td>
                     <td>{{ user.db_name }}</td>
 
-                    <td class="flex gap-2">
-                        <a href="{% url 'edit_user' user.id %}"
-                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
-                            Edit
-                        </a>
-                        <a href="{% url 'delete_user' user.id %}"
-                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-16">
-                            Delete
-                        </a>
-                        {% if user.is_active %}
-                        <a href="{% url 'block_user' user.id %}"
-                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-20">
-                            Block
-                        </a>
-                        {% else %}
-                        <a href="{% url 'block_user' user.id %}"
-                            class="btn btn-xs bg-green-700 hover:bg-green-800 text-white w-20">
-                            Unblock
-                        </a>
-                        {% endif %}
-                        {% if not user.msg_active %}
-                        <label for="send-message-modal-{{ user.id }}"
-                            class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-28 cursor-pointer">
-                            Send Message
-                        </label>
-                        {% else %}
-                        <a href="{% url 'clear_message' user.id %}"
-                            class="btn btn-xs bg-red-700 hover:bg-red-800 text-white w-28 cursor-pointer">
-                            Clear Message
-                        </a>
-                        {% endif %}
+                    <td>
+                        <div class="flex flex-wrap gap-2">
 
+                            <a href="{% url 'edit_user' user.id %}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white">Edit</a>
+
+                            <a href="{% url 'delete_user' user.id %}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white">Delete</a>
+
+                            {% if user.is_active %}
+                            <a href="{% url 'block_user' user.id %}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white">Block</a>
+                            {% else %}
+                            <a href="{% url 'block_user' user.id %}" class="btn btn-xs bg-green-700 hover:bg-green-800 text-white">Unblock</a>
+                            {% endif %}
+
+                            {% if not user.msg_active %}
+                            <label for="send-message-modal-{{ user.id }}" class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white cursor-pointer">Send Message</label>
+                            {% else %}
+                            <a href="{% url 'clear_message' user.id %}" class="btn btn-xs bg-red-700 hover:bg-red-800 text-white cursor-pointer">Clear Message</a>
+                            {% endif %}
+
+                            <div class="dropdown dropdown-end">
+                                <button tabindex="0" class="btn btn-xs btn-outline px-2">⋮</button>
+                                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 fixed z-[99999]">
+                                    <li>
+                                        <button class="btn btn-xs bg-gray-700 hover:bg-gray-800 text-white w-full"
+                                            onclick="openCompanyModal({{ user.id }})">
+                                            Edit Company Details
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
                     </td>
                 </tr>
-                <!-- MODAL FOR THIS USER -->
-                <input type="checkbox" id="send-message-modal-{{ user.id }}" class="modal-toggle" />
 
+                <!-- SEND MESSAGE MODAL -->
+                <input type="checkbox" id="send-message-modal-{{ user.id }}" class="modal-toggle" />
                 <div class="modal">
                     <div class="modal-box">
                         <h3 class="font-bold text-lg">Send Message to {{ user.customer_name }}</h3>
@@ -140,78 +104,55 @@
                         <form method="post" action="{% url 'message_user' user.id %}">
                             {% csrf_token %}
 
-                            <label class="label mt-3">
-                                <span class="label-text">Message Expiration date</span>
-                            </label>
-                            <input type="date" name="expiry_date" min="{{ today|date:'Y-m-d' }}" class="input input-bordered w-full" required>
+                            <label class="label mt-3"><span class="label-text">Message Expiry Date</span></label>
+                            <input type="date" name="expiry_date" min="{{ today|date:'Y-m-d' }}"
+                                class="input input-bordered w-full" required>
 
-                            <label class="label mt-3">
-                                <span class="label-text">Message</span>
-                            </label>
-                            <textarea name="msg" class="textarea textarea-bordered w-full mt-1"
-                                placeholder="Write message" required></textarea>
+                            <label class="label mt-3"><span class="label-text">Message</span></label>
+                            <textarea name="msg" class="textarea textarea-bordered w-full mt-1" required></textarea>
 
                             <div class="modal-action">
-                                <label for="send-message-modal-{{ user.id }}"
-                                    class="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                                    Cancel
-                                </label>
-                                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700">
-                                    Send
-                                </button>
+                                <label for="send-message-modal-{{ user.id }}" class="btn bg-gray-200">Cancel</label>
+                                <button type="submit" class="btn bg-blue-600 text-white">Send</button>
                             </div>
                         </form>
                     </div>
                 </div>
+
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-6 text-gray-500">
-                        No users found
-                    </td>
+                    <td colspan="7" class="text-center py-6 text-gray-500">No users found</td>
                 </tr>
                 {% endfor %}
             </tbody>
-
         </table>
+
         {% if users.paginator.num_pages > 1 %}
         <div class="flex justify-center mt-4">
-            <div class="btn-group">
-                {% if users.has_previous %}
-                <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                    class="btn btn-sm">«</a>
-                {% else %}
-                <span class="btn btn-sm btn-disabled">«</span>
-                {% endif %}
-
-                {% for num in users.paginator.page_range %}
-                {% if num >= users.number|add:-2 and num <= users.number|add:2 %} {% if users.number == num %} <span
-                    class="btn btn-sm btn-active">{{ num }}</span>
-                    {% else %}
-                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                        class="btn btn-sm">{{ num }}</a>
-                    {% endif %}
-                    {% elif num == 1 or num == users.paginator.num_pages %}
-                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                        class="btn btn-sm">{{ num }}</a>
-                    {% elif num == users.number|add:-3 or num == users.number|add:3 %}
-                    <span class="btn btn-sm btn-disabled">...</span>
-                    {% endif %}
-                    {% endfor %}
-
-                    {% if users.has_next %}
-                    <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                        class="btn btn-sm">»</a>
-                    {% else %}
-                    <span class="btn btn-sm btn-disabled">»</span>
-                    {% endif %}
-            </div>
+            {% include "pagination.html" with page_obj=users %}
         </div>
         {% endif %}
-
     </div>
 
 </div>
 
+<!-- COMPANY DETAILS MODAL (ONLY ONE) -->
+<input type="checkbox" id="company-details-modal" class="modal-toggle" />
+<div class="modal">
+    <div class="modal-box max-w-3xl">
+        <h3 class="font-bold text-lg mb-2">Edit Company Details</h3>
+
+        <form method="post" id="company-details-form">
+            {% csrf_token %}
+            <div id="modal-content"></div>
+
+            <div class="modal-action mt-4">
+                <label for="company-details-modal" class="btn bg-gray-200">Cancel</label>
+                <button type="submit" class="btn bg-blue-600 text-white">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     setTimeout(() => {
@@ -223,11 +164,130 @@
     }, 3000);
 
     function fadeOut(element) {
-    element.style.opacity = '0';
-    setTimeout(() => element.style.display = 'none', 500); // match duration-500
+        element.style.opacity = '0';
+        setTimeout(() => element.style.display = 'none', 500);
+    }
+
+function openCompanyModal(userId) {
+    fetch(`/edit_user_data_fetch/${userId}/`)
+        .then(response => response.json())
+        .then(data => {
+
+            const container = document.getElementById('modal-content');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="label"><span class="label-text">Company Name</span></label>
+                        <input type="text" name="company_name" class="input input-bordered w-full" 
+                            value="${data.company_name || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Website URL</span></label>
+                        <input type="text" name="website_url" class="input input-bordered w-full" 
+                            value="${data.website_url || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Phone Number</span></label>
+                        <input type="text" name="phone_number" class="input input-bordered w-full" 
+                            value="${data.phone_number || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Customer Care Number</span></label>
+                        <input type="text" name="customer_care_number" class="input input-bordered w-full" 
+                            value="${data.customer_care_number || ''}">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="label"><span class="label-text">GST Number</span></label>
+                        <input type="text" name="gst_number" class="input input-bordered w-full" 
+                            value="${data.gst_number || ''}">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="label"><span class="label-text">Address</span></label>
+                        <textarea name="address" class="textarea textarea-bordered w-full">${data.address || ''}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Info Email</span></label>
+                        <input type="email" name="info_email" class="input input-bordered w-full" 
+                            value="${data.info_email || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Customer No</span></label>
+                        <input type="text" name="customer_no" class="input input-bordered w-full" 
+                            value="${data.customer_no || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Credit Days</span></label>
+                        <input type="number" name="credit_days" class="input input-bordered w-full" 
+                            value="${data.credit_days || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Backup Key</span></label>
+                        <input type="text" name="backup_key" class="input input-bordered w-full" 
+                            value="${data.backup_key || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Version</span></label>
+                        <input type="text" name="version" class="input input-bordered w-full" 
+                            value="${data.version || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Software Type</span></label>
+                        <input type="text" name="software_type" class="input input-bordered w-full" 
+                            value="${data.software_type || ''}">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="label"><span class="label-text">Terms & Conditions</span></label>
+                        <textarea name="terms_condition" class="textarea textarea-bordered w-full">${data.terms_condition || ''}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Minimum Qty</span></label>
+                        <input type="number" name="minimum_qty" class="input input-bordered w-full" 
+                            value="${data.minimum_qty || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Front App Script</span></label>
+                        <input type="text" name="front_appscript" class="input input-bordered w-full" 
+                            value="${data.front_appscript || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Front Autocomplete</span></label>
+                        <input type="text" name="front_autocomplete" class="input input-bordered w-full" 
+                            value="${data.front_autocomplete || ''}">
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Front Validation</span></label>
+                        <input type="text" name="front_validation" class="input input-bordered w-full" 
+                            value="${data.front_validation || ''}">
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById("company-details-form").action = `/company_details/${userId}/`;
+
+            document.getElementById('company-details-modal').checked = true;
+        })
+        .catch(() => alert('Failed to load company details.'));
 }
 
 </script>
-
 
 {% endblock %}

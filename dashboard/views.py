@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 import pymysql
 from datetime import date
-
+from django.http import JsonResponse
 
 # GLOBAL VARIABLES
 
@@ -33,24 +33,53 @@ def index(request):
 # USER MANAGEMENT
 
 def user_mgmt_view_user(request):
+    print('here')
     query = request.GET.get('q', '')
-    
+
     # Filter users if search query exists
     if query:
         users_list = Users.objects.filter(customer_name__icontains=query)
     else:
         users_list = Users.objects.all()
-    
-    # Paginate the queryset (10 users per page, adjust as needed)
+
+    # Paginate (7 users per page)
     paginator = Paginator(users_list, 7)
     page_number = request.GET.get('page')
     users = paginator.get_page(page_number)
+
+    # Fetch company details for EACH user
+    company_details_data = {}
+
+    for user in users:
+        try:
+            conn = pymysql.connect(
+                host=user.ip_address,
+                user=user.db_username,
+                password=user.db_pass,
+                database=user.db_name,
+                port=3306,
+            )
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute("SELECT * FROM company_details LIMIT 1")
+            company_details = cursor.fetchone()
+
+        except:
+            company_details = None
+
+        finally:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
+
     context = {
         "today": date.today(),
-        'users':users
+        "users": users,
+        "company_details": company_details
     }
-    return render(request, "dashboard/view_user.html", context)
 
+    return render(request, "dashboard/view_user.html", context)
 
 def user_mgmt_add_user(request):
     if request.method == "POST":
@@ -268,6 +297,89 @@ def user_mgmt_clear_message(request, user_id):
             conn.close()
 
     return redirect("view_user")
+
+def user_mgmt_edit_company_details(request, user_id):
+    user = get_object_or_404(Users, id=user_id)
+
+    fields = [
+        "company_name", "website_url", "phone_number", "customer_care_number",
+        "gst_number", "address", "info_email", "customer_no", "credit_days",
+        "backup_key", "version", "software_type", "terms_condition",
+        "minimum_qty", "front_appscript", "front_autocomplete", "front_validation"
+    ]
+
+    data = {field: request.POST.get(field, "") for field in fields}
+
+    try:
+        conn = pymysql.connect(
+            host=user.ip_address,
+            user=user.db_username,
+            password=user.db_pass,
+            database=user.db_name,
+            port=3306,
+            autocommit=True
+        )
+
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        cursor.execute("SELECT id FROM company_details LIMIT 1")
+        row = cursor.fetchone()
+
+        if not row:
+            messages.error(request, "Company details record not found")
+            return redirect("view_user")
+
+        record_id = row["id"]
+
+        update_query = """
+            UPDATE company_details SET
+                company_name=%s, website_url=%s, phone_number=%s,
+                customer_care_number=%s, gst_number=%s, address=%s,
+                info_email=%s, customer_no=%s, credit_days=%s,
+                backup_key=%s, version=%s, software_type=%s,
+                terms_condition=%s, minimum_qty=%s,
+                front_appscript=%s, front_autocomplete=%s, front_validation=%s
+            WHERE id=%s
+        """
+
+        cursor.execute(update_query, (*data.values(), record_id))
+
+        messages.success(request, "Company details updated successfully")
+
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass
+
+    return redirect("view_user")
+
+def user_mgmt_edit_user_data_fetch(request, user_id):
+
+    user = get_object_or_404(Users, id=user_id)
+    company_data = {}
+
+    try:
+        conn = pymysql.connect(
+            host=user.ip_address,
+            user=user.db_username,
+            password=user.db_pass,
+            database=user.db_name,
+            port=3306,
+        )
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM company_details LIMIT 1")
+        company_data = cursor.fetchone() or {}
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(e)
+
+    return JsonResponse(company_data)
 
 
 # BACKUP
